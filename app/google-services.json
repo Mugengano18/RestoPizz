@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "202563900944",
+    "firebase_url": "https://restopicc.firebaseio.com",
+    "project_id": "restopicc",
+    "storage_bucket": "restopicc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:202563900944:android:615885e0c17e5402c35c95",
+        "android_client_info": {
+          "package_name": "com.android1.restopicc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "202563900944-jdn3r3pfkr8qhpm5bjlp3f41e3f4jk9u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.android1.restopicc",
+            "certificate_hash": "225a42c9e294a8d9ee9b7a5971cd4c379b02ce0f"
+          }
+        },
+        {
+          "client_id": "202563900944-s5nc2q9f7og5kk1g2seqc1back4cdi1d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCY7bkrE506z14M7BV9Wv4i6gVycsNmTLk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "202563900944-s5nc2q9f7og5kk1g2seqc1back4cdi1d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
