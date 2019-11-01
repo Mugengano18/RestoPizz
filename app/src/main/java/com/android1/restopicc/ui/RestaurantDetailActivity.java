@@ -5,6 +5,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.os.Bundle;
 
+import com.android1.restopicc.Constants;
 import com.android1.restopicc.R;
 import com.android1.restopicc.adapters.RestaurantPagerAdapter;
 import com.android1.restopicc.models.Restaurant;
@@ -19,6 +20,7 @@ import butterknife.ButterKnife;
 public class RestaurantDetailActivity extends AppCompatActivity {
     @BindView(R.id.pagerHeader)
     ViewPager mViewPager;
+    private String mSource;
     private RestaurantPagerAdapter adapterViewPager;
     ArrayList<Restaurant> mRestaurants = new ArrayList<>();
 
@@ -28,10 +30,13 @@ public class RestaurantDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_restaurant_detail);
 
         ButterKnife.bind(this);
-        mRestaurants = Parcels.unwrap(getIntent().getParcelableExtra("restaurants"));
-        int startingPosition = getIntent().getIntExtra("position", 0);
+        mSource = getIntent().getStringExtra(Constants.KEY_SOURCE);
+        // This line should already exist, we're just adding mSource as an additional parameter:
+        adapterViewPager = new RestaurantPagerAdapter(getSupportFragmentManager(), mRestaurants, mSource);
+        mRestaurants = Parcels.unwrap(getIntent().getParcelableExtra(Constants.EXTRA_KEY_RESTAURANTS));
+        int startingPosition = getIntent().getIntExtra(Constants.EXTRA_KEY_POSITION, 0);
 
-        adapterViewPager = new RestaurantPagerAdapter(getSupportFragmentManager(), mRestaurants);
+        adapterViewPager = new RestaurantPagerAdapter(getSupportFragmentManager(), mRestaurants, mSource);
         mViewPager.setAdapter(adapterViewPager);
         mViewPager.setCurrentItem(startingPosition);
     }

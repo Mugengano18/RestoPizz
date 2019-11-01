@@ -1,126 +1,65 @@
 package com.android1.restopicc.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.MenuItemCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.widget.SearchView;
 
 import com.android1.restopicc.Constants;
 import com.android1.restopicc.R;
-import com.android1.restopicc.adapters.RestaurantListAdapter;
 import com.android1.restopicc.models.Restaurant;
-import com.android1.restopicc.services.YelpService;
+import com.android1.restopicc.util.OnRestaurantSelectedListener;
 
-import java.io.IOException;
+import org.parceler.Parcels;
+
 import java.util.ArrayList;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
+public class RestaurantListActivity extends AppCompatActivity implements OnRestaurantSelectedListener {
 
-public class RestaurantListActivity extends AppCompatActivity {
-    public static final String TAG = RestaurantListActivity.class.getSimpleName();
-    private ArrayList<Restaurant> restaurants = new ArrayList<>();
-    @BindView(R.id.recyclerView)
-    RecyclerView mRecyclerView;
-    private RestaurantListAdapter mAdapter;
-
-    private SharedPreferences mSharedPreferences;
-    private SharedPreferences.Editor mEditor;
-    private String mRecentAddress;
+    private Integer mPosition;
+    ArrayList<Restaurant> mRestaurants;
+    String mSource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_restaurants);
-        ButterKnife.bind(this);
+        if (savedInstanceState != null) {
 
-        Intent intent = getIntent();
-        String location = intent.getStringExtra("location");
-        getRestaurants(location);
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                mPosition = savedInstanceState.getInt(Constants.EXTRA_KEY_POSITION);
+                mRestaurants = Parcels.unwrap(savedInstanceState.getParcelable(Constants.EXTRA_KEY_RESTAURANTS));
+                mSource = savedInstanceState.getString(Constants.KEY_SOURCE);
+                if (mPosition != null && mRestaurants != null) {
+                    Intent intent = new Intent(this, RestaurantDetailActivity.class);
+                    intent.putExtra(Constants.EXTRA_KEY_POSITION, mPosition);
+                    intent.putExtra(Constants.EXTRA_KEY_RESTAURANTS, Parcels.wrap(mRestaurants));
+                    intent.putExtra(Constants.KEY_SOURCE, mSource);
+                    startActivity(intent);
+                }
 
+            }
 
-        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        mRecentAddress = mSharedPreferences.getString(Constants.PREFERENCES_LOCATION_KEY, null);
-        if(mRecentAddress != null){
-            getRestaurants(mRecentAddress);
         }
     }
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if (mPosition != null && mRestaurants != null) {
+            outState.putInt(Constants.EXTRA_KEY_POSITION, mPosition);
+            outState.putParcelable(Constants.EXTRA_KEY_RESTAURANTS, Parcels.wrap(mRestaurants));
+            outState.putString(Constants.KEY_SOURCE, mSource);
+        }
+
+    }
+
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_search, menu);
-        ButterKnife.bind(this);
-
-        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        mEditor = mSharedPreferences.edit();
-
-        MenuItem menuItem = menu.findItem(R.id.action_search);
-        SearchView searchView = (SearchView) MenuItemCompat.getActionView(menuItem);
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                addToSharedPreferences(s);
-                getRestaurants(s);
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String s) {
-                return false;
-            }
-        });
-
-        return true;
+    public void onRestaurantSelected(Integer position, ArrayList<Restaurant> restaurants, String source) {
+        mPosition = position;
+        mRestaurants = restaurants;
+        mSource = source;
     }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void addToSharedPreferences(String location) {
-        mEditor.putString(Constants.PREFERENCES_LOCATION_KEY, location).apply();
-    }
-
-    private void getRestaurants(String location){
-        final YelpService yelpService = new YelpService();
-        yelpService.findRestaurants(location, new Callback(){
-
-            @Override
-            public void onFailure(Call call, IOException e){
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                restaurants = yelpService.processResults(response);
-                RestaurantListActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mAdapter = new RestaurantListAdapter(getApplicationContext(), restaurants);
-                        mRecyclerView.setAdapter(mAdapter);
-                        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(RestaurantListActivity.this);
-                        mRecyclerView.setLayoutManager(layoutManager);
-                        mRecyclerView.setHasFixedSize(true);
-                    }
-                });
-            }
-        });
-    }
-
-
 }

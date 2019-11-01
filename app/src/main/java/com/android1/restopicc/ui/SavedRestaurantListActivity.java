@@ -24,68 +24,17 @@ import com.google.firebase.database.Query;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class SavedRestaurantListActivity extends AppCompatActivity implements OnStartDragListener {
-    private DatabaseReference mRestaurantReference;
-    private FirebaseRestaurantListAdapter mFirebaseAdapter;
-    private ItemTouchHelper mItemTouchHelper;
-
-    @BindView(R.id.recyclerView)
-    RecyclerView mRecyclerView;
-
-
+public class SavedRestaurantListActivity extends AppCompatActivity implements OnStartDragListener{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_restaurants);
-        ButterKnife.bind(this);
 
-
-        setUpFirebaseAdapter();
     }
 
-    private void setUpFirebaseAdapter(){
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String uid = user.getUid();
-
-
-        mRestaurantReference = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_RESTAURANTS).child(uid);
-        Query query = FirebaseDatabase.getInstance()
-                .getReference(Constants.FIREBASE_CHILD_RESTAURANTS)
-                .child(uid)
-                .orderByChild(Constants.FIREBASE_QUERY_INDEX);
-        FirebaseRecyclerOptions<Restaurant> options =
-                new FirebaseRecyclerOptions.Builder<Restaurant>()
-                        .setQuery(query, Restaurant.class)
-                        .build();
-
-        mFirebaseAdapter = new FirebaseRestaurantListAdapter(options, query, this, this);
-
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerView.setAdapter(mFirebaseAdapter);
-        mRecyclerView.setHasFixedSize(true);
-        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(mFirebaseAdapter);
-        mItemTouchHelper = new ItemTouchHelper(callback);
-        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
-    }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        mFirebaseAdapter.startListening();
-    }
+    public void onStartDrag(FirebaseRestaurantViewHolder viewHolder) {
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if(mFirebaseAdapter!= null) {
-            mFirebaseAdapter.stopListening();
-        }
     }
-    public void onStartDrag(FirebaseRestaurantViewHolder viewHolder){
-        mItemTouchHelper.startDrag(viewHolder);
-    }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mFirebaseAdapter.stopListening(); }
 }
